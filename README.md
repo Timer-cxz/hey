@@ -11,7 +11,7 @@ To preserve the name for its original owner, we renamed this project to hey.
 
 ## Installation
 
-    go get -u github.com/rakyll/hey
+    go get -u github.com/Timer-cxz/hey
 
 ## Usage
 
@@ -23,6 +23,7 @@ It also supports HTTP2 endpoints.
 Usage: hey [options...] <url>
 
 Options:
+  -r  Random to get a num in [0, x) to replace 'random' in url
   -n  Number of requests to run. Default is 200.
   -c  Number of requests to run concurrently. Total number of requests cannot
       be smaller than the concurrency level. Default is 50.
