@@ -29,7 +29,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/rakyll/hey/requester"
+	"github.com/Timer-cxz/hey/requester"
 )
 
 const (
@@ -50,6 +50,7 @@ var (
 
 	output = flag.String("o", "", "")
 
+	r = flag.Int("r", 0, "")
 	c = flag.Int("c", 50, "")
 	n = flag.Int("n", 200, "")
 	q = flag.Float64("q", 0, "")
@@ -68,6 +69,7 @@ var (
 var usage = `Usage: hey [options...] <url>
 
 Options:
+  -r  Random to get a num in [0, x) to replace randomNum in url
   -n  Number of requests to run. Default is 200.
   -c  Number of requests to run concurrently. Total number of requests cannot
       be smaller than the concurrency level. Default is 50.
@@ -115,6 +117,7 @@ func main() {
 	}
 
 	runtime.GOMAXPROCS(*cpus)
+	random := *r
 	num := *n
 	conc := *c
 	q := *q
@@ -213,8 +216,10 @@ func main() {
 	req.Header = header
 
 	w := &requester.Work{
+		ReqURL:				url,
 		Request:            req,
 		RequestBody:        bodyAll,
+		R:					random,
 		N:                  num,
 		C:                  conc,
 		QPS:                q,

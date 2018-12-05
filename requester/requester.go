@@ -18,12 +18,17 @@ package requester
 import (
 	"bytes"
 	"crypto/tls"
+	_ "crypto/rand"
 	"io"
 	"io/ioutil"
+	_ "math/big"
+	"math/rand"
 	"net/http"
 	"net/http/httptrace"
 	"net/url"
 	"os"
+	"strings"
+	"strconv"
 	"sync"
 	"time"
 
@@ -48,10 +53,13 @@ type result struct {
 }
 
 type Work struct {
+	ReqURL string
 	// Request is the request to be made.
 	Request *http.Request
 
 	RequestBody []byte
+
+	R int
 
 	// N is the total number of requests to make.
 	N int
@@ -146,7 +154,24 @@ func (b *Work) makeRequest(c *http.Client) {
 	var code int
 	var dnsStart, connStart, resStart, reqStart, delayStart time.Duration
 	var dnsDuration, connDuration, resDuration, reqDuration, delayDuration time.Duration
-	req := cloneRequest(b.Request, b.RequestBody)
+
+	var req *http.Request
+	var err error
+	if b.R > 0 {
+		// ret, _ := rand.Int(rand.Reader, big.NewInt(int64(b.R)))
+		rand.Seed(time.Now().UnixNano());
+		ret := rand.Intn(b.R)
+		// newURL := strings.Replace(b.ReqURL, "random", ret.String(), -1)
+		newURL := strings.Replace(b.ReqURL, "random", strconv.Itoa(ret), -1)
+
+		req, err = http.NewRequest("GET", newURL, nil)
+		if err != nil {
+			return
+		}
+	} else {
+		req = cloneRequest(b.Request, b.RequestBody)
+	}
+
 	trace := &httptrace.ClientTrace{
 		DNSStart: func(info httptrace.DNSStartInfo) {
 			dnsStart = now()
